@@ -1,0 +1,6 @@
+{
+    "server_settings": {
+        "port_number": 12345,
+        "node_addresses": ["172.18.0.2", "172.18.0.3", "172.18.0.4"]
+    }
+}
