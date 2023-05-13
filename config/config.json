@@ -1,7 +1,7 @@
 {
     "server_settings": {
         "client_port": 12345,
-        "synch_port": 34567,
+        "sync_port": 34567,
         "node_addresses": ["172.18.0.2", "172.18.0.3", "172.18.0.4", "172.25.160.1"],
         "multicast_group": "224.18.0.1"
     }

@@ -10,12 +10,12 @@ def read_config_file():
         exit()
     return config_file
 
-def parse_config(config_as_str):
-    return json.loads(config_as_str)
-
 def load_config_file_to_dict():
     config_as_str = read_config_file()
     return parse_config(config_as_str)
+
+def parse_config(config_as_str):
+    return json.loads(config_as_str)
 
 def get_server_config(config_dict):
     return config_dict["server_settings"]
