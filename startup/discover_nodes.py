@@ -7,7 +7,7 @@ def discover_nodes():
     server_settings_dict = load_config.get_server_config(config_dict)
     other_nodes_list = get_other_nodes_from_config(server_settings_dict)
     multicast_group = get_multicast_group_from_config(server_settings_dict)
-    send_multicast.startup_discover_multicast(multicast_group)
+    return send_multicast.startup_discover_multicast(multicast_group, other_nodes_list)
 
 
 def get_other_nodes_from_config(server_settings_dict):
