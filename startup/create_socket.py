@@ -1,10 +1,10 @@
 import socket
+import struct
 
 from startup import load_config
 
 def initialize_server():
-    config_dict = load_config.load_config_file_to_dict()
-    server_settings_dict = load_config.get_server_config(config_dict)
+    server_settings_dict = load_config.get_server_config()
     return create_server(server_settings_dict)
 
 def create_server(settings_dict):
@@ -18,6 +18,12 @@ def create_server(settings_dict):
 
 def create_INET_STREAM_socket():
     return socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+def create_multicast_socket():
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    ttl = struct.pack('b', 1)
+    sock.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_TTL, ttl)
+    return sock
 
 def bind_socket(socket, ip_addr, port):
     socket.bind((ip_addr, port))
