@@ -29,8 +29,8 @@ def open_transmission_socket(server_config):
     create_socket.bind_socket(sock, load_config.get_hostmachine_ip_addr(), server_config["sync_port"])
     sock.listen(3)
     while True:
-        print("Listening on " + str(sock))
         conn, addr = sock.accept()
+        print("Incoming connection on %s" % sock.getsockname())
         t = threading.Thread(target=handle_sync_response, args=(conn,addr))
         t.start()
 

@@ -1,6 +1,7 @@
 from startup import create_socket, discover_nodes, ready_for_receiving
 from synchronisation import send_multicast
 
+import os
 
 if __name__ == "__main__":
     print("Hello")

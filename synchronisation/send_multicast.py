@@ -27,7 +27,7 @@ def startup_discover_multicast():
     while True:
         try:
             if (validate_responder(replied_server_list[counter], other_nodes_list)):
-                print("node %s trusted, connect to ", replied_server_list[counter])
+                print("node %s trusted, connecting" % replied_server_list[counter])
                 sock.connect((replied_server_list[counter], server_config["sync_port"]))
                 sock.send(("sync_req").encode())
                 synced_data = receive_sync_data(sock)
@@ -39,7 +39,7 @@ def startup_discover_multicast():
                     counter += 1
                     continue
             else:
-                print("Responder %s not trusted", replied_server_list[counter])
+                print("Responder %s not trusted" % replied_server_list[counter])
                 counter += 1
                 continue
         except IndexError:
@@ -48,7 +48,7 @@ def startup_discover_multicast():
             break
         except Exception as e:
             print(str(e))
-            print("Node %s not reached", replied_server_list[counter])
+            print("Node %s not reached" % replied_server_list[counter])
             counter += 1
             continue
     sock.close()
@@ -68,7 +68,7 @@ def validate_received_data(data):
         return False
 
 def save_synced_data(synced_data):
-    with open("/TESV_projekt/data/data.json", "w") as outfile:
+    with open("../TESV_projekt/data/data.json", "w") as outfile:
         outfile.write(synced_data)
 
 def wait_for_mc_response(sock) -> list:
@@ -85,7 +85,7 @@ def wait_for_mc_response(sock) -> list:
     
 def load_local_data():
     try:
-        with open("/TESV_projekt/data/data.json", "r") as infile:
+        with open("../TESV_projekt/data/data.json", "r") as infile:
             return json.load(infile)
     except FileNotFoundError:
         print("No local data file found, create empty file")

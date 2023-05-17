@@ -3,7 +3,7 @@ import socket
 
 def read_config_file():
     try:
-        with open("/TESV_projekt/config/config.json") as json_file:
+        with open("../TESV_projekt/config/config.json") as json_file:
             config_file = json_file.read()
     except:
         print("Config File missing, shutting down")
