@@ -30,7 +30,7 @@ def open_transmission_socket(server_config):
     sock.listen(3)
     while True:
         conn, addr = sock.accept()
-        print("Incoming connection on %s" % sock.getsockname())
+        print("Incoming connection on %s:%s" % (addr))
         t = threading.Thread(target=handle_sync_response, args=(conn,addr))
         t.start()
 
@@ -44,8 +44,6 @@ def handle_sync_response(connection, address):
     message, sender = receive_and_decode_message(connection)
     if message == "sync_req":
         data = send_multicast.load_local_data()
-        print(str(data))
-        print(type(data))
         transmission_data = str.encode(json.dumps(data))
         connection.sendall(transmission_data)
 
