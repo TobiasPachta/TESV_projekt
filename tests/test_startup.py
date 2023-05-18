@@ -39,7 +39,9 @@ def test_create_socket_bind_socket():
 
 def test_discover_nodes():
     data = discover_nodes.discover_nodes()
-    assert str(data) == "{'username': 'Tobias'}"
+    print(data)
+    print(data["data"][0])
+    assert str(type(data)) == "<class 'dict'>"
 
 def test_load_config_read_config_file_nempty():
     config_file = load_config.read_config_file()

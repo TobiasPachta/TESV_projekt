@@ -1,10 +1,13 @@
 import json
 import socket
 
+from synchronisation import mutex
+
 def read_config_file():
     try:
-        with open("../TESV_projekt/config/config.json") as json_file:
-            config_file = json_file.read()
+        with mutex.CONFIG_FILE_LOCK:
+            with open("../TESV_projekt/config/config.json") as json_file:
+                config_file = json_file.read()
     except:
         print("Config File missing, shutting down")
         exit()
@@ -20,11 +23,17 @@ def parse_config(config_as_str):
 def get_server_config_dict(config_dict):
     return config_dict["server_settings"]
 
+def get_client_config_dict(config_dict):
+    return config_dict["client_settings"]
+
 def get_hostmachine_ip_addr():
     return socket.gethostbyname(socket.gethostname())
 
 def get_server_config():
     return get_server_config_dict(load_config_file_to_dict())
+
+def get_client_config():
+    return get_client_config_dict(load_config_file_to_dict())
 
 def get_multicast_group_from_config(server_settings_dict):
     return server_settings_dict["multicast_group"]
