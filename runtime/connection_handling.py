@@ -43,7 +43,7 @@ def handle_mc_sync_req(sock):
         message, sender = message_handling.receive_and_decode_message(sock)
         print("Incoming mc-connection from %s:%s" % (sender))
         if sender[0] != sock.getsockname()[0]:
-            print("Message: %s " % message)
+            #print("Message: %s " % message)
             match message[:8]:
                 case "sync_req":
                     sock.sendto("ack".encode(), sender)

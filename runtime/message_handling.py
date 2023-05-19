@@ -55,7 +55,6 @@ def send_entry(message):
 
 
 def add_entry(local_data: dict, entry_to_add):
-    print(str(entry_to_add))
     local_data["data"].append(entry_to_add)
     return local_data
 
