@@ -1,41 +1,69 @@
 import socket
 import json
+import pytest
+import os
 
 from startup import create_socket, discover_nodes, load_config, ready_for_receiving
 
 def test_create_socket_initialize_server_class():
     sock = create_socket.initialize_server()
     assert str(type(sock)) == "<class 'socket.socket'>"
+    sock.close()
 
 def test_create_socket_initialize_server_address():
     sock = create_socket.initialize_server()
     print(sock.getsockname())
     assert str(sock.getsockname()) == "('" + str(socket.gethostbyname(socket.gethostname())) + "', 12345)" 
+    sock.close()
 
 def test_create_socket_create_INET_STREAM_socket_type():
     sock = create_socket.create_INET_STREAM_socket()
     assert sock.type == socket.SocketKind.SOCK_STREAM 
+    sock.close()
 
 def test_create_socket_create_INET_STREAM_socket_family():
     sock = create_socket.create_INET_STREAM_socket()
     assert sock.family == socket.AddressFamily.AF_INET 
+    sock.close()
 
 def test_create_socket_create_multicast_socket_type():
     sock = create_socket.create_multicast_socket()
     assert sock.type == socket.SocketKind.SOCK_DGRAM 
+    sock.close()
 
 def test_create_socket_create_multicast_socket_family():
     sock = create_socket.create_multicast_socket()
     assert sock.family == socket.AddressFamily.AF_INET 
+    sock.close()
 
 def test_create_socket_create_multicast_socket_ttl():
     sock = create_socket.create_multicast_socket()
     assert sock.getsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_TTL) == 1
+    sock.close()
 
 def test_create_socket_bind_socket():
     sock = create_socket.create_INET_STREAM_socket()
     create_socket.bind_socket(sock, "0.0.0.0", 11111)
     assert str(sock.getsockname()) == "('0.0.0.0', 11111)"
+    sock.close()
+
+def test_create_socket_create_server_class():
+    settings_dict = load_config.get_server_config()
+    sock = create_socket.create_server(settings_dict)
+    assert str(type(sock)) == "<class 'socket.socket'>"
+    sock.close()
+
+def test_create_socket_create_server_not_registered():
+    settings_dict = load_config.get_server_config()
+    settings_dict["node_addresses"].clear()
+    with pytest.raises(SystemExit):
+        sock = create_socket.create_server(settings_dict)
+        sock.close()
+
+def test_create_socket_create_server_address():
+    settings_dict = load_config.get_server_config()
+    sock = create_socket.create_server(settings_dict)
+    assert str(sock.getsockname()) == "('172.25.160.1', 12345)"
 
 def test_discover_nodes():
     data = discover_nodes.discover_nodes()
@@ -67,9 +95,14 @@ def test_load_config_get_hostmachine_ip_addr():
 def test_load_config_get_server_config_nempty():
     assert str(load_config.get_server_config()) != ""
 
-    
-def test_load_config_get_server_config_nempty():
+def test_load_config_get_server_config_dict():
     assert str(type(load_config.get_server_config())) == "<class 'dict'>"
+
+def test_load_config_get_client_config_nempty():
+    assert str(load_config.get_client_config()) != ""
+
+def test_load_config_get_client_config_dict():
+    assert str(type(load_config.get_client_config())) == "<class 'dict'>"
 
 def test_load_config_get_multicast_group_from_config_nempty():
     server_settings = load_config.get_server_config()
@@ -87,3 +120,9 @@ def test_load_config_remove_own_machine_from_node_list():
     other_nodes = load_config.remove_own_machine_from_node_list(all_nodes)
     own_ip = load_config.get_hostmachine_ip_addr()
     assert not own_ip in other_nodes
+
+def test_load_config_no_config():
+    os.rename("config/config.json", "config/config2.json")
+    with pytest.raises(SystemExit):
+        load_config.read_config_file()
+    os.rename("config/config2.json", "config/config.json")
