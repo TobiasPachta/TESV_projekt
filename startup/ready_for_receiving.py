@@ -83,7 +83,6 @@ def open_data_socket(server_config, allThreads):
     finally:
         if sock:
             sock.close()
-        print(allThreads)
         for t in allThreads:
             t.shouldStop = False
             t.join()
