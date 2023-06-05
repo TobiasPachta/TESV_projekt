@@ -82,7 +82,10 @@ def restart_sock_conn(old_ip, sock):
     return sock
 
 def remove_own_ip_from_config(config_dict):
-    config_dict["server_addresses"].remove(load_config.get_hostmachine_ip_addr())
+    try:
+        config_dict["server_addresses"].remove(load_config.get_hostmachine_ip_addr())
+    except ValueError:
+        pass
     return config_dict
     
 
