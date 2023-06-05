@@ -8,11 +8,12 @@ from synchronisation import send_multicast, mutex
 
 def handle_client_request(connection, address):
     t = threading.currentThread()
-    connection.settimeout(1)
+    connection.settimeout(5.0)
     print("Socket opened at %s:%s" % (address))
     while getattr(t, "shouldStop", True):
         try:
-            message, sender = message_handling.receive_and_decode_message(connection)
+            message = connection.recv(1024)
+            message = message.decode()
             match message[:3]:
                 case "add":
                     updated = message_handling.add_or_update_entry(message[3:])
@@ -35,8 +36,6 @@ def handle_client_request(connection, address):
                 case "get":
                     entry = message_handling.send_entry(message[3:])
                     connection.sendall(str(entry).encode())
-                case "":
-                    pass
                 case _:
                     print("unknown request %s" % (message[:3]))
                     break

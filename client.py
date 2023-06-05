@@ -2,6 +2,7 @@ import socket
 import random
 import datetime
 import json
+from time import sleep
 
 from startup import create_socket, load_config
 
@@ -17,24 +18,33 @@ Please choose a command:
 [e]xit - to exit the programm
     """
     config_dict = startup()
+    config_dict = remove_own_ip_from_config(config_dict)
     sock = open_client_socket(config_dict)
     while True:
-        command = get_input(command_description).lower()
-
-        match command[:1]:
-            case "a":
-                add_entry(sock)
-            case "c":
-                update_entry(sock)
-            case "g":
-                get_entry(sock)
-            case "d":
-                delete_entry(sock)
-            case "e":
-                print("Goodbye")
-                exit()
-            case _:
-                print("Command not known, please try again!")
+        try:
+            command = get_input(command_description).lower()
+            if sock.fileno() == -1:
+                print("Connection lost, restarting")
+                sock.close()
+                sleep(1)
+                sock = open_client_socket(config_dict)
+            match command[:1]:
+                case "a":
+                    add_entry(sock)
+                case "c":
+                    update_entry(sock)
+                case "g":
+                    get_entry(sock)
+                case "d":
+                    delete_entry(sock)
+                case "e":
+                    print("Goodbye")
+                    exit()
+                case _:
+                    print("Command not known, please try again!")
+        except KeyboardInterrupt:
+            print("Goodbye")
+            exit()
 
 
 def startup():
@@ -47,13 +57,22 @@ def open_client_socket(config_dict):
     return connect_sock(sock, config_dict)
 
 def connect_sock(sock, config_dict):
-    server_addr = random.choice(config_dict["server_addresses"])
-    print("Opening connection " + str(server_addr) + " " + str(config_dict["client_port"]))
-    sock.connect((server_addr, config_dict["client_port"]))
-    return sock
+    while 1:
+        try:
+            server_addr = random.choice(config_dict["server_addresses"])
+            print("Opening connection " + str(server_addr) + " " + str(config_dict["client_port"]))
+            sock.connect((server_addr, config_dict["client_port"]))
+            return sock
+        except:
+            if len(config_dict["server_addresses"]) == 0:
+                print("No Servers available!")
+                exit()
+            config_dict["server_addresses"].remove(server_addr)
+            print("Server " + str(server_addr) + " not reached!")
 
 def restart_sock_conn(old_ip, sock):
     config_dict = startup()
+    config_dict = remove_own_ip_from_config(config_dict)
     config_dict["server_addresses"].remove(old_ip)
     if len(config_dict["server_addresses"]) > 0:
         sock = open_client_socket(config_dict) 
@@ -62,6 +81,10 @@ def restart_sock_conn(old_ip, sock):
         exit()
     return sock
 
+def remove_own_ip_from_config(config_dict):
+    config_dict["server_addresses"].remove(load_config.get_hostmachine_ip_addr())
+    return config_dict
+    
 
 def add_entry(sock):
     username  = get_input("Please enter the user you want to add:")
@@ -93,25 +116,25 @@ def get_entry(sock):
 
 
 def send_message_to_server(sock, payload):
-    print(payload)
     if sock.fileno() == -1:
-        print("restarting")
+        print("Connection lost, restarting")
         old_ip = sock.getpeername()[0]
         sock.close()
+        sleep(1)
         sock = restart_sock_conn(old_ip, sock)
         send_message_to_server(sock, payload)
-        print(sock)
-    sock.sendall(payload)
-    response = sock.recvfrom(1024)
-    if response[0].decode() == "":
-        print("restarting")
-        old_ip = sock.getpeername()[0]
-        sock.close()
-        sock = restart_sock_conn(old_ip, sock)
-        send_message_to_server(sock, payload)
-        print(sock)
     else:
-        print(response[0].decode())
+        sock.sendall(payload)
+        response = sock.recv(1024)
+        if response.decode() == "":
+            print("Connection lost, restarting")
+            old_ip = sock.getpeername()[0]
+            sock.close()
+            sleep(1)
+            sock = restart_sock_conn(old_ip, sock)
+            send_message_to_server(sock, payload)
+        else:
+            print(response.decode())
 
 def get_input(message):
     print(message)
