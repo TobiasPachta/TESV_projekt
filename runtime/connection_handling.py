@@ -39,19 +39,25 @@ def handle_client_request(connection, address):
         
 
 def handle_mc_sync_req(sock):
-    while True:
-        message, sender = message_handling.receive_and_decode_message(sock)
-        print("Incoming mc-connection from %s:%s" % (sender))
-        if sender[0] != sock.getsockname()[0]:
-            #print("Message: %s " % message)
-            match message[:8]:
-                case "sync_req":
-                    sock.sendto("ack".encode(), sender)
-                case "new_data":
-                    message_handling.save_synced_data(message[8:])
-                case _:
-                    #ignore message
-                    pass
+    try:
+        while True:
+            message, sender = message_handling.receive_and_decode_message(sock)
+            print("Incoming mc-connection from %s:%s" % (sender))
+            if sender[0] != sock.getsockname()[0]:
+                #print("Message: %s " % message)
+                match message[:8]:
+                    case "sync_req":
+                        sock.sendto("ack".encode(), sender)
+                    case "new_data":
+                        message_handling.save_synced_data(message[8:])
+                    case _:
+                        #ignore message
+                        pass
+    except KeyboardInterrupt:
+        print("Shutting down server")
+    finally:
+        if sock:
+            sock.close()
         
 
 def handle_sync_response(connection, address):

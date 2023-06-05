@@ -33,11 +33,21 @@ def open_transmission_socket(server_config):
     create_socket.bind_socket(sock, load_config.get_hostmachine_ip_addr(), server_config["sync_port"])
     print("Listening for syn on " + str(sock))
     sock.listen(3)
-    while True:
-        conn, addr = sock.accept()
-        print("Incoming connection from %s:%s" % (addr))
-        t = threading.Thread(target=connection_handling.handle_sync_response, args=(conn,addr))
-        t.start()
+    threadList = []
+    try:
+        while True:
+            conn, addr = sock.accept()
+            print("Incoming connection from %s:%s" % (addr))
+            t = threading.Thread(target=connection_handling.handle_sync_response, args=(conn,addr))
+            t.start()
+            threadList.append(t)
+    except KeyboardInterrupt:
+        print("Shutting down server")
+    finally:
+        if sock:
+            sock.close()
+        for t in threadList:
+            t.join()
 
 
 def open_data_socket(server_config):
@@ -46,8 +56,18 @@ def open_data_socket(server_config):
     create_socket.bind_socket(sock, load_config.get_hostmachine_ip_addr(), server_config["client_port"])
     print("Listening for clients on " + str(sock))
     sock.listen(3)
-    while True:
-        conn, addr = sock.accept()
-        print("Incoming client transmission from %s:%s" % (addr))
-        t = threading.Thread(target=connection_handling.handle_client_request, args=(conn, addr))
-        t.start()
+    mcThreadList = []
+    try:
+        while True:
+            conn, addr = sock.accept()
+            print("Incoming client transmission from %s:%s" % (addr))
+            t = threading.Thread(target=connection_handling.handle_client_request, args=(conn, addr))
+            t.start()
+            mcThreadList.append(t)
+    except KeyboardInterrupt:
+        print("Shutting down server")
+    finally:
+        if sock:
+            sock.close()
+        for t in mcThreadList:
+            t.join()
