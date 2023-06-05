@@ -20,6 +20,7 @@ Please choose a command:
     sock = open_client_socket(config_dict)
     while True:
         command = get_input(command_description).lower()
+
         match command[:1]:
             case "a":
                 add_entry(sock)
@@ -41,12 +42,26 @@ def startup():
 
 def open_client_socket(config_dict):
     sock = create_socket.create_INET_STREAM_socket()
-    create_socket.bind_socket(sock, load_config.get_hostmachine_ip_addr(), config_dict["client_port"])
     sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    create_socket.bind_socket(sock, load_config.get_hostmachine_ip_addr(), config_dict["client_port"])
+    return connect_sock(sock, config_dict)
+
+def connect_sock(sock, config_dict):
     server_addr = random.choice(config_dict["server_addresses"])
     print("Opening connection " + str(server_addr) + " " + str(config_dict["client_port"]))
     sock.connect((server_addr, config_dict["client_port"]))
     return sock
+
+def restart_sock_conn(old_ip, sock):
+    config_dict = startup()
+    config_dict["server_addresses"].remove(old_ip)
+    if len(config_dict["server_addresses"]) > 0:
+        sock = open_client_socket(config_dict) 
+    else:
+        print("no more servers online")
+        exit()
+    return sock
+
 
 def add_entry(sock):
     username  = get_input("Please enter the user you want to add:")
@@ -78,9 +93,25 @@ def get_entry(sock):
 
 
 def send_message_to_server(sock, payload):
+    print(payload)
+    if sock.fileno() == -1:
+        print("restarting")
+        old_ip = sock.getpeername()[0]
+        sock.close()
+        sock = restart_sock_conn(old_ip, sock)
+        send_message_to_server(sock, payload)
+        print(sock)
     sock.sendall(payload)
     response = sock.recvfrom(1024)
-    print(response[0].decode())
+    if response[0].decode() == "":
+        print("restarting")
+        old_ip = sock.getpeername()[0]
+        sock.close()
+        sock = restart_sock_conn(old_ip, sock)
+        send_message_to_server(sock, payload)
+        print(sock)
+    else:
+        print(response[0].decode())
 
 def get_input(message):
     print(message)
