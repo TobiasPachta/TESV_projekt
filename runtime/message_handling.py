@@ -46,7 +46,6 @@ def delete_entry(message):
 
 def send_entry(message):
     local_data = file_handling.load_local_data()
-    print(str(type(local_data)))
     message_as_dict, message_as_list = get_message_as_dict_and_list(message)
     for entry in local_data["data"]:
         if entry["username"] == message_as_list["username"]:

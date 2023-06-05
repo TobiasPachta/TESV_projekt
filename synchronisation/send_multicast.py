@@ -87,8 +87,6 @@ def validate_responder(responder_ip_addr, other_nodes_list):
 def try_save_synced_data_to_disk(synced_data):
     try:
         data_as_dict = json.loads(synced_data)
-        print(data_as_dict)
-        print(type(data_as_dict))
         data_as_dict.pop("counter")
         file_handling.save_synced_data(json.dumps(data_as_dict))
     except Exception as e:
