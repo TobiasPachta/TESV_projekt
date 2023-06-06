@@ -12,9 +12,9 @@ def simple_client():
     command_description = """
 Please choose a command:
 [a]dd - to add a new user
-[c]hange - to change the status of an user
-[g]et - to get the state of an user
-[d]elete - to delete the state of an user
+[c]hange - to change the status of a user
+[g]et - to get the state of a user
+[d]elete - to delete the state of a user
 [e]xit - to exit the programm
     """
     config_dict = startup()
