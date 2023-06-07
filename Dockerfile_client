@@ -1,0 +1,7 @@
+FROM python:3.10.11-alpine
+#COPY ./TESV_projekt /TESV_projekt
+RUN apk update && \
+    apk upgrade && \
+    apk add git
+RUN git clone https://github.com/TobiasPachta/TESV_projekt.git /TESV_projekt
+CMD ["python","-u", "TESV_projekt/client.py"]
