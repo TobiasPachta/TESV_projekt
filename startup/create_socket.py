@@ -5,7 +5,8 @@ from startup import load_config
 
 def initialize_server():
     server_settings_dict = load_config.get_server_config()
-    return create_server(server_settings_dict)
+    server_sock = create_server(server_settings_dict)
+    return server_sock
 
 def create_server(settings_dict):
     host_address = load_config.get_hostmachine_ip_addr()
@@ -17,7 +18,8 @@ def create_server(settings_dict):
     return server_instance
 
 def create_INET_STREAM_socket():
-    return socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    tcp_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    return tcp_sock
 
 def create_multicast_socket():
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)

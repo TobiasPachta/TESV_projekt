@@ -37,7 +37,7 @@ def handle_client_request(connection, address):
                     entry = message_handling.send_entry(message[3:])
                     connection.sendall(str(entry).encode())
                 case _:
-                    print("unknown request %s" % (message[:3]))
+                    #when the other side of the socket has been closed
                     break
         except socket.timeout:
             pass

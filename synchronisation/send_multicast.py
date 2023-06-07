@@ -4,6 +4,7 @@ import json
 
 from startup import create_socket, load_config
 from runtime import file_handling
+from runtime import clock
 
 def startup_discover_multicast():
     server_config = load_config.get_server_config()
@@ -87,6 +88,7 @@ def validate_responder(responder_ip_addr, other_nodes_list):
 def try_save_synced_data_to_disk(synced_data):
     try:
         data_as_dict = json.loads(synced_data)
+        clock.set_event_counter(data_as_dict["counter"])
         data_as_dict.pop("counter")
         file_handling.save_synced_data(json.dumps(data_as_dict))
     except Exception as e:
