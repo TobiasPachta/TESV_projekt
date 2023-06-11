@@ -40,3 +40,7 @@ Sollte zumindest ein Server im Betrieb sein, kann ein Client mittels
     docker run -ti --network  tesv-network --name Client1 tevs_client_node
 
 gestartet werden. *-ti* gibt hier an, dass der Container "attached" gestartet werden soll, sprich Eingaben können über das Terminal getätig werden. Auch hier ist darauf zu Achten, dass der Client im tevs-network eingebunden wird. 
+
+## Emfohlene Betrieb
+Es wird empfohlen, zunächst 3 Server zu starten, und anschließend beliebig viele Clients.
+Grund dafür ist, dass Dockernetzwerke standardmäßig IP Adressen mittels DHCP vergeben und Server nur mit bestimmten IP Adressen gestartet werden dürfen (.2 - .4).  
