@@ -4,6 +4,7 @@ import threading
 
 from runtime import message_handling,file_handling, clock
 from synchronisation import send_multicast, mutex
+from startup import load_config
 
 
 def handle_client_request(connection, address):
@@ -48,20 +49,24 @@ def handle_client_request(connection, address):
 
 def handle_mc_sync_req(sock):
     t = threading.currentThread()
+    server_config_dict = load_config.get_server_config()
     try:
         while getattr(t, "shouldStop", True):
             try:
                 message, sender = message_handling.receive_and_decode_message(sock)
-                print("Incoming mc-connection from %s:%s" % (sender))
-                if sender[0] != sock.getsockname()[0]:
-                    match message[:8]:
-                        case "sync_req":
-                            sock.sendto("ack".encode(), sender)
-                        case "new_data":
-                            message_handling.save_synced_data(message[8:])
-                        case _:
-                            #ignore message
-                            pass
+                if sender[0] in server_config_dict["node_addresses"]:
+                    if sender[0] != sock.getsockname()[0]: #ignore own mc messages
+                        print("Incoming mc-connection from %s:%s" % (sender))
+                        match message[:8]:
+                            case "sync_req":
+                                sock.sendto("ack".encode(), sender)
+                            case "new_data":
+                                message_handling.save_synced_data(message[8:])
+                            case _:
+                                #ignore message
+                                pass
+                else:
+                    print("MC sender not trusted")
             except socket.timeout:
                 pass
         print("Shutting down mc server")
