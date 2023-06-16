@@ -37,7 +37,7 @@ Node1 gibt hier den Namen des Containers an, muss für weitere Server abgeänder
 
 Sollte zumindest ein Server im Betrieb sein, kann ein Client mittels
 
-    docker run -ti --network  tesv-network --name Client1 tevs_client_node
+    docker run -ti --network  tevs-network --name Client1 tevs_client_node
 
 gestartet werden. *-ti* gibt hier an, dass der Container "attached" gestartet werden soll, sprich Eingaben können über das Terminal getätig werden. Auch hier ist darauf zu Achten, dass der Client im tevs-network eingebunden wird. 
 
